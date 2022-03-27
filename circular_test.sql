@@ -1,0 +1,15 @@
+DROP SCHEMA test CASCADE;
+
+CREATE SCHEMA test;
+
+CREATE TABLE test.thing (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ref INT
+);
+
+CREATE TABLE test.other (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    ref INT REFERENCES test.thing(id)
+);
+
+ALTER TABLE test.thing ADD FOREIGN KEY(ref) REFERENCES test.other(id);
