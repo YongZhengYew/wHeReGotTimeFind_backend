@@ -4,21 +4,21 @@ CREATE SCHEMA test;
 
 CREATE TABLE test.users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     temp_auth_token TEXT
 );
 
 CREATE TABLE test.vendors (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     location TEXT,
     phone_number TEXT
 );
 
 CREATE TABLE test.products (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE test.reviews (
@@ -269,15 +269,14 @@ WHERE
     AND v.id = r.vendor_ref
 ;
 
-"SELECT"
-    "r.*,"
-    "v.*"
-"FROM"
-    "test.reviews r"
-        "JOIN test.tags_to_reviews t_r ON r.id = t_r.review_ref"
-        "JOIN test.tags t ON t.id = t_r.tag_ref,"
-    test.vendors v
+SELECT
+    r.*,
+    u.*
+FROM
+    test.reviews r,
+    test.users u
 WHERE
-    t.name = 'awful quality'
-    AND v.id = r.vendor_ref
+    r.user_ref = u.id
+    AND u.name = 'shaun'
 ;
+
