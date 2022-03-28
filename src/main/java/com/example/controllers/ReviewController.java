@@ -1,50 +1,54 @@
 package com.example.controllers;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/reviews")
 public class ReviewController extends DatabaseAccess{
 
+    final String reviewSpecSelectStatement =
+            "SELECT "+
+            "    r.id AS reviewid, " +
+            "    r.user_ref AS userid, "+
+            "    r.rating, "+
+            "    r.units_purchased, "+
+            "    r.unit, "+
+            "    r.price_per_unit, "+
+            "    r.comments, "+
+            "    v.name, "+
+            "    v.location, "+
+            "    v.phone_no, "+
+            "    p.name AS product_name ";
+
     @GetMapping("/tag/{tagName}")
-    String getReviewByTagName(@PathVariable String tagName) {
+    String getReviewsByTagName(@PathVariable String tagName) {
         try (Connection connection = this.dataSource.getConnection()) {
             ResultSet rs = this.prepareStatement(
-                    "SELECT "+
-                    "    r.*, "+
-                    "    v.* "+
+                    this.reviewSpecSelectStatement +
                     "FROM "+
-                    "    __DBNAME__.reviews r "+
-                    "        JOIN __DBNAME__.tags_to_reviews t_r ON r.id = t_r.review_ref "+
-                    "        JOIN __DBNAME__.tags t ON t.id = t_r.tag_ref, "+
-                    "    __DBNAME__.vendors v "+
+                    "    test.reviews r "+
+                    "        JOIN test.tags_to_reviews t_r ON r.id = t_r.review_ref "+
+                    "        JOIN test.tags t ON t.id = t_r.tag_ref, "+
+                    "    test.vendors v, "+
+                    "    test.products p "+
                     "WHERE "+
-                    "    t.name = ? "+
-                    "    AND v.id = r.vendor_ref ",
+                    "    v.id = r.vendor_ref "+
+                    "    AND p.id = r.product_ref "+
+                    "    AND t.name = ? ",
                     connection,
-                    tagName
+                    new Object[] {tagName}
             ).executeQuery();
 
-            JSONObject result = new JSONObject();
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numberofColumns = rsmd.getColumnCount();
-
-            int count = 0;
-            while (rs.next()) {
-                JSONObject entry = new JSONObject();
-                for (int i = 1; i <= numberofColumns; i++) {
-                    String columnValue = rs.getString(i);
-                    System.out.print(columnValue + " " + rsmd.getColumnName(i));
-                    entry.put(rsmd.getColumnName(i), columnValue);
-                }
-                result.put(String.valueOf(count), entry);
-                count++;
-            }
+            JSONObject result = this.getReviewsToSpecFromResultSet(rs, connection);
             return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,37 +57,25 @@ public class ReviewController extends DatabaseAccess{
     }
 
     @GetMapping("/username/{username}")
-    String getReviewByUsername(@PathVariable String username) {
+    String getReviewsByUsername(@PathVariable String username) {
         try (Connection connection = this.dataSource.getConnection()) {
             ResultSet rs = this.prepareStatement(
-                    "SELECT "+
-                    "    r.*, "+
-                    "    u.* "+
+                    this.reviewSpecSelectStatement +
                     "FROM "+
-                    "    __DBNAME__.reviews r, "+
-                    "    __DBNAME__.users u "+
+                    "    test.reviews r, "+
+                    "    test.vendors v, "+
+                    "    test.products p, "+
+                    "    test.users u "+
                     "WHERE "+
-                    "    r.user_ref = u.id "+
+                    "    v.id = r.vendor_ref "+
+                    "    AND p.id = r.product_ref "+
+                    "    AND r.user_ref = u.id "+
                     "    AND u.name = ? ",
                     connection,
-                    username
+                    new Object[] {username}
             ).executeQuery();
 
-            JSONObject result = new JSONObject();
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int numberofColumns = rsmd.getColumnCount();
-
-            int count = 0;
-            while (rs.next()) {
-                JSONObject entry = new JSONObject();
-                for (int i = 1; i <= numberofColumns; i++) {
-                    String columnValue = rs.getString(i);
-                    System.out.print(columnValue + " " + rsmd.getColumnName(i));
-                    entry.put(rsmd.getColumnName(i), columnValue);
-                }
-                result.put(String.valueOf(count), entry);
-                count++;
-            }
+            JSONObject result = this.getReviewsToSpecFromResultSet(rs, connection);
             return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,5 +107,68 @@ public class ReviewController extends DatabaseAccess{
 //        }
 //
 //    }
+
+    JSONObject getReviewsToSpecFromResultSet(ResultSet rs, Connection connection) throws SQLException {
+        JSONArray fullReviewArray = new JSONArray();
+        while (rs.next()) {
+
+            JSONObject vendor = this.gatherObject(
+                    rs,
+                    "name",
+                    "location",
+                    "phone_no"
+            );
+            JSONObject review = this.gatherObject(
+                    rs,
+                    "userid",
+                    "rating",
+                    "units_purchased",
+                    "unit",
+                    "price_per_unit",
+                    "comments",
+                    "product_name"
+            );
+
+            List<Object> tagNamesPerReview = this.getListFromSingleColumn(
+                    "SELECT "+
+                            "    t.name "+
+                            "FROM "+
+                            "    test.reviews r "+
+                            "        JOIN test.tags_to_reviews tr ON r.id = tr.review_ref, "+
+                            "    test.tags t "+
+                            "WHERE "+
+                            "    t.id = tr.tag_ref "+
+                            "    AND r.id = ? ",
+                    connection,
+                    new Object[] {rs.getObject("reviewid")},
+                    "name"
+            );
+            review.put("tags", tagNamesPerReview);
+
+            List<Object> imagesPerReview = this.getListFromSingleColumn(
+                    "SELECT "+
+                            "    i.data "+
+                            "FROM "+
+                            "    test.reviews r "+
+                            "        JOIN test.images_to_reviews ir ON r.id = ir.review_ref, "+
+                            "    test.images i "+
+                            "WHERE "+
+                            "    i.id = ir.image_ref "+
+                            "    AND r.id = ? ",
+                    connection,
+                    new Object[] {rs.getObject("reviewid")},
+                    "data"
+            );
+            review.put("images", imagesPerReview);
+
+            JSONObject fullReview = new JSONObject();
+            fullReview.put("vendor", vendor);
+            fullReview.put("review", review);
+            fullReviewArray.put(fullReview);
+        }
+        JSONObject result = new JSONObject();
+        result.put("full_reviews", fullReviewArray);
+        return result;
+    }
 
 }

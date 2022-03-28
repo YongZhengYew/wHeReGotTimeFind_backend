@@ -13,7 +13,7 @@ CREATE TABLE test.vendors (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     location TEXT,
-    phone_number TEXT
+    phone_no INT
 );
 
 CREATE TABLE test.products (
@@ -26,11 +26,11 @@ CREATE TABLE test.reviews (
     user_ref INT REFERENCES test.users(id), -- nullable for possible anonymity
     product_ref INT REFERENCES test.products(id) ON DELETE CASCADE NOT NULL,
     vendor_ref INT REFERENCES test.vendors(id) ON DELETE CASCADE NOT NULL,
-    star_rating INT NOT NULL,
+    rating INT NOT NULL,
     units_purchased INT NOT NULL,
-    unit_size TEXT NOT NULL,
+    unit TEXT NOT NULL,
     price_per_unit DECIMAL(19, 4) NOT NULL,
-    body_text TEXT
+    comments TEXT
 );
 
 CREATE TABLE test.images (
@@ -66,9 +66,9 @@ INSERT INTO test.products(name) VALUES('grass');
 INSERT INTO test.products(name) VALUES('cup');
 INSERT INTO test.products(name) VALUES('laptop');
 
-INSERT INTO test.vendors(name, location, phone_number) VALUES('amazon', 'www.amazon.com', '+69 1234 5678');
-INSERT INTO test.vendors(name, location, phone_number) VALUES('newegg', 'www.newegg.com', '1800-THIS-IS-NOT-PIZZA-HUT');
-INSERT INTO test.vendors(name, location, phone_number) VALUES('google play store', 'www.googleplaystore.com', '+69 HOHOHO');
+INSERT INTO test.vendors(name, location, phone_no) VALUES('amazon', 'www.amazon.com', 69 1234 5678);
+INSERT INTO test.vendors(name, location, phone_no) VALUES('newegg', 'www.newegg.com', 9876);
+INSERT INTO test.vendors(name, location, phone_no) VALUES('google play store', 'www.googleplaystore.com', 12629);
 
 INSERT INTO test.tags(name) VALUES('fast delivery');
 INSERT INTO test.tags(name) VALUES('slow delivery');
@@ -79,11 +79,11 @@ INSERT INTO test.reviews(
     user_ref,
     product_ref,
     vendor_ref,
-    star_rating,
+    rating,
     units_purchased,
-    unit_size,
+    unit,
     price_per_unit,
-    body_text
+    comments
 ) VALUES(
     (
         SELECT id FROM test.users
@@ -118,11 +118,11 @@ INSERT INTO test.reviews(
     user_ref,
     product_ref,
     vendor_ref,
-    star_rating,
+    rating,
     units_purchased,
-    unit_size,
+    unit,
     price_per_unit,
-    body_text
+    comments
 ) VALUES(
     (
         SELECT id FROM test.users
@@ -167,11 +167,11 @@ INSERT INTO test.reviews(
     user_ref,
     product_ref,
     vendor_ref,
-    star_rating,
+    rating,
     units_purchased,
-    unit_size,
+    unit,
     price_per_unit,
-    body_text
+    comments
 ) VALUES(
     (
         SELECT id FROM test.users
@@ -206,11 +206,11 @@ INSERT INTO test.reviews(
     user_ref,
     product_ref,
     vendor_ref,
-    star_rating,
+    rating,
     units_purchased,
-    unit_size,
+    unit,
     price_per_unit,
-    body_text
+    comments
 ) VALUES(
     (
         SELECT id FROM test.users
@@ -242,11 +242,11 @@ INSERT INTO test.tags_to_reviews(tag_ref, review_ref) VALUES(
 );
 
 UPDATE test.reviews
-SET star_rating = star_rating + 1
+SET rating = rating + 1
 WHERE id = 1;
 
 UPDATE test.reviews
-SET star_rating = star_rating + 1
+SET rating = rating + 1
 WHERE id = 1;
 
 SELECT r.*
@@ -270,6 +270,50 @@ WHERE
 ;
 
 SELECT
+    r.user_ref AS userid,
+    r.rating,
+    r.units_purchased,
+    r.unit,
+    r.price_per_unit,
+    r.comments,
+    v.name,
+    v.location,
+    v.phone_no,
+    p.name AS product_name
+FROM
+    test.reviews r
+        JOIN test.tags_to_reviews t_r ON r.id = t_r.review_ref
+        JOIN test.tags t ON t.id = t_r.tag_ref,
+    test.vendors v,
+    test.products p
+WHERE
+    t.name = 'awful quality'
+    AND v.id = r.vendor_ref
+    AND p.id = r.product_ref
+;
+
+SELECT
+    t.name
+FROM
+    test.reviews r
+        JOIN test.tags_to_reviews tr ON r.id = tr.review_ref,
+    test.tags t
+WHERE
+    t.id = tr.tag_ref
+    AND r.id = 1
+;
+
+SELECT
+    i.data
+FROM
+    test.reviews r
+        JOIN test.images_to_reviews ir ON r.id = ir.review_ref,
+    test.images i
+WHERE
+    i.id = ir.image_ref
+    AND r.id = 1
+
+SELECT
     r.*,
     u.*
 FROM
@@ -279,4 +323,27 @@ WHERE
     r.user_ref = u.id
     AND u.name = 'shaun'
 ;
+
+SELECT
+    r.id AS reviewid,
+    r.user_ref AS userid,
+    r.rating,
+    r.units_purchased,
+    r.unit,
+    r.price_per_unit,
+    r.comments,
+    v.name,
+    v.location,
+    v.phone_no,
+    p.name AS product_name
+FROM
+    test.reviews r,
+    test.vendors v,
+    test.products p,
+    test.users u
+WHERE
+    v.id = r.vendor_ref
+    AND p.id = r.product_ref
+    AND r.user_ref = u.id
+    AND u.name = ?
 

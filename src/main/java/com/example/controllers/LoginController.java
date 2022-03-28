@@ -31,7 +31,7 @@ public class LoginController extends DatabaseAccess {
                             "FROM __DBNAME__.users " +
                             "WHERE user_name = ?",
                     connection,
-                    user_name
+                    new Object[] {user_name}
             ).executeQuery();
 
             List<String> passwordHashList = new ArrayList<>();
@@ -50,8 +50,7 @@ public class LoginController extends DatabaseAccess {
                                 "SET temp_auth_token = ? " +
                                 "WHERE user_name = ?",
                         connection,
-                        newTempAuthToken,
-                        user_name
+                        new Object[] {newTempAuthToken, user_name}
                 ).executeUpdate();
                 res.put("temp_auth_token", newTempAuthToken);
             }

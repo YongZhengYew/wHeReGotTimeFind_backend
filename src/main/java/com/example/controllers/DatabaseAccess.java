@@ -2,6 +2,7 @@ package com.example.controllers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class DatabaseAccess {
 
@@ -34,14 +38,31 @@ public class DatabaseAccess {
         return res;
     }
 
+    JSONObject gatherObject(ResultSet rs, String ... properties) throws SQLException {
+        JSONObject entry = new JSONObject();
+        for (String str : properties) {
+            entry.put(str, rs.getObject(str));
+        }
+        return entry;
+    }
 
-    PreparedStatement prepareStatement(String sqlStatement, Connection connection, Object... params) throws SQLException {
+
+    PreparedStatement prepareStatement(String sqlStatement, Connection connection, Object[] params) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(this.insertDBName(sqlStatement));
         int i = 1;
         for (Object o : params) {
             preparedStatement.setObject(i++, o);
         }
         return preparedStatement;
+    }
+
+    List<Object> getListFromSingleColumn(String sqlQuery, Connection connection,  Object[] params, String columnName) throws SQLException {
+        ResultSet rs = this.prepareStatement(sqlQuery, connection, params).executeQuery();
+        List<Object> result = new ArrayList<>();
+        while (rs.next()) {
+            result.add(rs.getObject(columnName));
+        }
+        return result;
     }
 
     boolean validateRequestCredentials(String user_name, String temp_auth_token) {
@@ -53,7 +74,7 @@ public class DatabaseAccess {
                             "FROM __DBNAME__.users " +
                             "WHERE user_name = ?",
                     connection,
-                    user_name
+                    new Object[] {user_name}
             ).executeQuery();
 
             boolean success = false;
