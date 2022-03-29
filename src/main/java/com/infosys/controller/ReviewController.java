@@ -3,17 +3,14 @@ package com.infosys.controller;
 import com.infosys.model.*;
 import com.infosys.model.projection.ReviewView;
 import com.infosys.service.*;
-import com.infosys.service.DTO.FullReview;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Set;
 
 @RestController
+@RequestMapping("/reviews")
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
@@ -36,13 +33,12 @@ public class ReviewController {
     @Autowired
     private ImageService imageService;
 
-
-    @GetMapping("/reviews/{id}")
+    @GetMapping("/{id}")
     ReviewView getReviewView(@PathVariable Integer id) {
         return reviewService.getReviewView(id);
     }
 
-    @GetMapping("/reviews/username")
+    @GetMapping("/username")
     String getFullReviewsByUsernames(@RequestParam String[] usernames) {
         for (String str : usernames) {
             System.out.println(str);
@@ -50,7 +46,7 @@ public class ReviewController {
         return fullReviewService.getFullReviewsByUsernames(usernames).toString();
     }
 
-    @GetMapping("/reviews/tags")
+    @GetMapping("/tags")
     String getFullReviewsByTagNames(@RequestParam String[] tagNames) {
         for (String str : tagNames) {
             System.out.println(str);
@@ -58,7 +54,7 @@ public class ReviewController {
         return fullReviewService.getFullReviewsByTagNames(tagNames).toString();
     }
 
-    @PostMapping("/reviews")
+    @PostMapping
     Review postReview(
             @RequestParam Integer userId,
 
@@ -108,8 +104,13 @@ public class ReviewController {
             }
         }
 
+        User user = null;
+        if (userId != null) {
+            user = userService.getById(userId);
+        }
+
         Review review = reviewService.save(new Review(
-                userService.getById(userId),
+                user,
                 product,
                 vendor,
                 rating,
