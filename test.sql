@@ -13,7 +13,7 @@ CREATE TABLE test.vendors (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
     location TEXT,
-    phone_no INT
+    phone_no DECIMAL(20,0)
 );
 
 CREATE TABLE test.products (
@@ -35,14 +35,8 @@ CREATE TABLE test.reviews (
 
 CREATE TABLE test.images (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    data TEXT NOT NULL
-);
-
-CREATE TABLE test.images_to_reviews (
-    image_ref INT REFERENCES test.images(id) ON DELETE CASCADE,
-    review_ref INT REFERENCES test.reviews(id) ON DELETE CASCADE,
-
-    PRIMARY KEY(image_ref, review_ref)
+    data TEXT NOT NULL,
+    review_ref INT REFERENCES test.reviews(id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE TABLE test.tags (
@@ -66,7 +60,7 @@ INSERT INTO test.products(name) VALUES('grass');
 INSERT INTO test.products(name) VALUES('cup');
 INSERT INTO test.products(name) VALUES('laptop');
 
-INSERT INTO test.vendors(name, location, phone_no) VALUES('amazon', 'www.amazon.com', 69 1234 5678);
+INSERT INTO test.vendors(name, location, phone_no) VALUES('amazon', 'www.amazon.com', 6912345678);
 INSERT INTO test.vendors(name, location, phone_no) VALUES('newegg', 'www.newegg.com', 9876);
 INSERT INTO test.vendors(name, location, phone_no) VALUES('google play store', 'www.googleplaystore.com', 12629);
 
@@ -302,16 +296,6 @@ WHERE
     t.id = tr.tag_ref
     AND r.id = 1
 ;
-
-SELECT
-    i.data
-FROM
-    test.reviews r
-        JOIN test.images_to_reviews ir ON r.id = ir.review_ref,
-    test.images i
-WHERE
-    i.id = ir.image_ref
-    AND r.id = 1
 
 SELECT
     r.*,
