@@ -18,6 +18,7 @@ public class FullReview {
     private ReviewStub review;
     private VendorView vendor;
 
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     static class ReviewStub {
         private Integer userid;
         private String productName;
