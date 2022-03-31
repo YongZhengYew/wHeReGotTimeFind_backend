@@ -1,11 +1,14 @@
 package com.infosys.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "images", schema = "test")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

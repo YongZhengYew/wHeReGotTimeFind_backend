@@ -2,6 +2,8 @@ package com.infosys.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,6 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tags", schema = "test")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

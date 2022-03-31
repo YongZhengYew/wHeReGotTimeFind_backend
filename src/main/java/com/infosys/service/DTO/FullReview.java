@@ -1,6 +1,8 @@
 package com.infosys.service.DTO;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.infosys.model.projection.ImageView;
 import com.infosys.model.projection.ReviewView;
 import com.infosys.model.projection.TagView;
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FullReview {
     private ReviewStub review;
@@ -17,9 +20,9 @@ public class FullReview {
 
     static class ReviewStub {
         private Integer userid;
-        private String product_name;
+        private String productName;
         private Integer rating;
-        private Integer units_purchased;
+        private Integer unitsPurchased;
         private String unit;
 
         public Integer getUserid() {
@@ -30,12 +33,12 @@ public class FullReview {
             this.userid = userid;
         }
 
-        public String getProduct_name() {
-            return product_name;
+        public String getProductName() {
+            return productName;
         }
 
-        public void setProduct_name(String product_name) {
-            this.product_name = product_name;
+        public void setProductName(String productName) {
+            this.productName = productName;
         }
 
         public Integer getRating() {
@@ -46,12 +49,12 @@ public class FullReview {
             this.rating = rating;
         }
 
-        public Integer getUnits_purchased() {
-            return units_purchased;
+        public Integer getUnitsPurchased() {
+            return unitsPurchased;
         }
 
-        public void setUnits_purchased(Integer units_purchased) {
-            this.units_purchased = units_purchased;
+        public void setUnitsPurchased(Integer unitsPurchased) {
+            this.unitsPurchased = unitsPurchased;
         }
 
         public String getUnit() {
@@ -111,9 +114,9 @@ public class FullReview {
                 String comments
         ) {
             this.userid = userid;
-            this.product_name = product_name;
+            this.productName = product_name;
             this.rating = rating;
-            this.units_purchased = units_purchased;
+            this.unitsPurchased = units_purchased;
             this.unit = unit;
             this.price_per_unit = price_per_unit;
             this.tags = tags;

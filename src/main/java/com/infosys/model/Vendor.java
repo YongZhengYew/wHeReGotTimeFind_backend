@@ -1,12 +1,15 @@
 package com.infosys.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name="vendors", schema="test")
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Vendor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

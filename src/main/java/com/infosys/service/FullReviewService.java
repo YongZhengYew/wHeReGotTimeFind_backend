@@ -110,6 +110,7 @@ public class FullReviewService {
         reviewViews
                 .map(FullReview::new)
                 .map(objectMapperUtil::getJSONObject)
+                .peek(System.out::println)
                 .forEach(result::put);
         return result;
     }
