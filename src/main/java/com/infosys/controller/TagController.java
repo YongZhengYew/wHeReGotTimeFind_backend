@@ -1,17 +1,17 @@
 package com.infosys.controller;
 
-import com.infosys.repository.TagRepository;
+import com.infosys.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tags")
 public class TagController {
     @Autowired
-    private TagRepository tagRepository;
+    private TagService tagService;
 
-//    @GetMapping("/tagNames/{tagNames}")
-//    String getTagsByTagNames
+    @GetMapping("/tagNames/{tagName}")
+    String getTagsByTagName(@PathVariable String tagName) {
+        return tagService.getByNameList(tagName).toString();
+    }
 }

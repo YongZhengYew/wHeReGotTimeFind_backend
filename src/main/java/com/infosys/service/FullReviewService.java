@@ -1,19 +1,19 @@
 package com.infosys.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.infosys.model.projection.ProductView;
 import com.infosys.model.projection.ReviewView;
-import com.infosys.repository.ReviewRepository;
-import com.infosys.repository.TagRepository;
-import com.infosys.repository.UserRepository;
-import com.infosys.repository.VendorRepository;
+import com.infosys.model.projection.VendorView;
+import com.infosys.repository.*;
 import com.infosys.service.DTO.FullReview;
+import com.infosys.utils.ObjectMapperUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class FullReviewService {
@@ -25,44 +25,92 @@ public class FullReviewService {
     private TagRepository tagRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapperUtil objectMapperUtil;
 
     public JSONArray getFullReviewsByUsernames(String[] usernames) {
         JSONArray result = new JSONArray();
-        for (String username : usernames) {
-            JSONObject fullReviewsPerUser = new JSONObject();
-            JSONArray userReviewArray = new JSONArray();
-            List<ReviewView> ls = reviewRepository.findReviewViewByUserName(username);
-            for (ReviewView rv : ls) {
-                JSONObject fr = null;
-                try {
-                    fr = new JSONObject(objectMapper.writeValueAsString(new FullReview(rv)));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-                userReviewArray.put(fr);
-            }
-            fullReviewsPerUser.put("full_review", userReviewArray);
-            result.put(fullReviewsPerUser);
-        }
+        Arrays.stream(usernames).map(username -> {
+            JSONArray perUser = new JSONArray();
+            reviewRepository.findReviewViewByUserName(username).stream()
+                    .map(FullReview::new)
+                    .map(objectMapperUtil::getJSONObject)
+                    .forEach(perUser::put);
+            JSONObject fullReviews = new JSONObject();
+            fullReviews.put("full_reviews", perUser);
+            return fullReviews;
+        }).forEach(result::put);
+//        for (String username : usernames) {
+//            JSONObject fullReviewsPerUser = new JSONObject();
+//            JSONArray userReviewArray = new JSONArray();
+//            List<ReviewView> ls = reviewRepository.findReviewViewByUserName(username);
+//            for (ReviewView rv : ls) {
+//                JSONObject fr = null;
+//                try {
+//                    fr = new JSONObject(objectMapperUtil.writeValueAsString(new FullReview(rv)));
+//                } catch (JsonProcessingException e) {
+//                    e.printStackTrace();
+//                }
+//                userReviewArray.put(fr);
+//            }
+//            fullReviewsPerUser.put("full_review", userReviewArray);
+//            result.put(fullReviewsPerUser);
+//        }
         return result;
     }
 
-    public JSONArray getFullReviewsByTagNames(String[] tagNames) {
+    public JSONArray getFullReviewsByTagIds(Integer[] tagIds) {
         JSONArray userReviewArray = new JSONArray();
-        List<ReviewView> ls = reviewRepository.findDistinctByTagsNameIn(tagNames);
-        for (ReviewView rv : ls) {
-            JSONObject fr = null;
-            try {
-                fr = new JSONObject(objectMapper.writeValueAsString(new FullReview(rv)));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            userReviewArray.put(fr);
-        }
+        List<ReviewView> reviewViews = reviewRepository.findDistinctByTagsIdIn(tagIds);
 
+        reviewViews.stream()
+                .map(FullReview::new)
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(userReviewArray::put);
+//        for (ReviewView rv : ls) {
+//            JSONObject fr = null;
+//            try {
+//                fr = new JSONObject(objectMapperUtil.writeValueAsString(new FullReview(rv)));
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            userReviewArray.put(fr);
+//        }
         return userReviewArray;
+    }
+
+    public JSONArray getFullReviewsByProductNameFuzzy(String productName) {
+        Stream<Integer> productIdsFuzzy = productRepository.findByNameFuzzy(productName)
+                .stream().map(ProductView::getId);
+
+        Stream<ReviewView> reviewViews = productIdsFuzzy
+                .map(reviewRepository::findReviewViewByProductId)
+                .flatMap(List::stream);
+
+        JSONArray result = new JSONArray();
+        reviewViews
+                .map(FullReview::new)
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(result::put);
+        return result;
+    }
+
+    public JSONArray getFullReviewsByVendorNameFuzzy(String vendorName) {
+        Stream<Integer> vendorIdsFuzzy = vendorRepository.findVendorViewByNameFuzzy(vendorName)
+                .stream().map(VendorView::getId);
+
+        Stream<ReviewView> reviewViews = vendorIdsFuzzy
+                .map(reviewRepository::findReviewViewByVendorId)
+                .flatMap(List::stream);
+
+        JSONArray result = new JSONArray();
+        reviewViews
+                .map(FullReview::new)
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(result::put);
+        return result;
     }
 }
