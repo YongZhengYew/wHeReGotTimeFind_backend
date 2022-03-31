@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
+@RequestMapping("/vendors")
 public class VendorController {
 
     @Autowired
     private VendorService vendorService;
 
     // Save operation
-    @PostMapping("/vendors")
+    @PostMapping
     public Vendor saveVendor(@Valid @RequestBody Vendor vendor) {
             return vendorService.save(vendor);
     }
@@ -28,8 +29,13 @@ public class VendorController {
         return vendorService.getById(id);
     }
 
+    @GetMapping("/vendorName/{vendorName}")
+    public String getVendorByNameFuzzy(@PathVariable String vendorName) {
+        return vendorService.getByNameFuzzy(vendorName).toString();
+    }
+
     // Delete operation
-    @DeleteMapping("/vendors/{id}")
+    @DeleteMapping("/{id}")
     public String deleteDepartmentById(@PathVariable("id") Integer id) {
         vendorService.deleteById(id);
         return "Deleted Successfully";

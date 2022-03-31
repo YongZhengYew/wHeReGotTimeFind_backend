@@ -3,11 +3,15 @@ package com.infosys.controller;
 import com.infosys.model.*;
 import com.infosys.model.projection.ReviewView;
 import com.infosys.service.*;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/reviews")
@@ -47,68 +51,98 @@ public class ReviewController {
     }
 
     @GetMapping("/tags")
-    String getFullReviewsByTagNames(@RequestParam String[] tagNames) {
-        for (String str : tagNames) {
-            System.out.println(str);
-        }
-        return fullReviewService.getFullReviewsByTagNames(tagNames).toString();
+    String getFullReviewsByTagIds(@RequestParam Integer[] tagIds) {
+        return fullReviewService.getFullReviewsByTagIds(tagIds).toString();
+    }
+
+    @GetMapping("/productName/{productName}")
+    String getFullReviewsByProductName(@PathVariable String productName) {
+        return fullReviewService.getFullReviewsByProductNameFuzzy(productName).toString();
+    }
+
+    @GetMapping("/vendorName/{vendorName}")
+    String getFullReviewsByVendorName(@PathVariable String vendorName) {
+        return fullReviewService.getFullReviewsByVendorNameFuzzy(vendorName).toString();
     }
 
     @PostMapping
     Review postReview(
-            @RequestParam Integer userId,
+            @RequestParam Integer existingUserId,
 
-            @RequestParam Integer productId,
-            @RequestParam String productName,
+            @RequestParam Integer existingProductId,
+            @RequestParam String newProductName,
 
-            @RequestParam Integer vendorId,
-            @RequestParam String vendorName,
-            @RequestParam String vendorLocation,
-            @RequestParam Long vendorPhoneNo,
+            @RequestParam Integer existingVendorId,
+            @RequestParam String newVendorName,
+            @RequestParam String newVendorLocation,
+            @RequestParam Long newVendorPhoneNo,
 
             @RequestParam String[] imagesData,
-            @RequestParam String[] tagNames,
+
+            @RequestParam Integer[] existingTagIds,
+            @RequestParam String[] newTagNames,
+
             @RequestParam Integer rating,
             @RequestParam Integer unitsPurchased,
             @RequestParam String unit,
             @RequestParam BigDecimal pricePerUnit,
             @RequestParam String comments
     ) {
-        Product product;
-        if (productId == null) {
-            if (productName.isEmpty()) {
-                System.out.println("empty product id AND name");
-                return null;
-            }
-            product = productService.save(new Product(productName));
-        } else {
-            product = productService.getById(productId);
-            if (product == null) {
-                System.out.println("product with that id does not exist");
-                return null;
-            }
+        if (existingUserId == null) return null;
+        if (existingProductId == null && newProductName.isEmpty())
+            return null;
+        if (existingVendorId == null && (
+                newVendorName.isEmpty() ||
+                newVendorLocation.isEmpty() ||
+                newVendorPhoneNo == null
+        ))
+            return null;
+
+        System.out.println("XXXXXXXXXX");
+
+        User user = userService.getById(existingUserId);
+        if (user == null) return null;
+
+        System.out.println("XXXXXXXXXX");
+
+        Product product = null;
+        if (existingProductId != null) {
+            Product getResult = productService.getById(existingProductId);
+            if (getResult == null) return null;
+            else product = getResult;
         }
 
-        Vendor vendor;
-        if (vendorId == null) {
-            if (vendorName.isEmpty()) {
-                System.out.println("empty product id AND name");
-                return null;
-            }
-            vendor = vendorService.save(new Vendor(vendorName, vendorLocation, vendorPhoneNo));
-        } else {
-            vendor = vendorService.getById(vendorId);
-            if (vendor == null) {
-                System.out.println("vendor with that id does not exist");
-                return null;
-            }
+        System.out.println("XXXXXXXXXX");
+
+        Vendor vendor = null;
+        if (existingVendorId != null) {
+            Vendor getResult = vendorService.getById(existingVendorId);
+            if (getResult == null) return null;
+            else vendor = getResult;
         }
 
-        User user = null;
-        if (userId != null) {
-            user = userService.getById(userId);
-        }
+        System.out.println("XXXXXXXXXX");
 
+        Stream<Tag> tagsGetResult = Arrays.stream(existingTagIds)
+                .map(tagService::getById);
+
+        boolean tagIdsValid = tagsGetResult.noneMatch(Objects::isNull);
+        if (!tagIdsValid) return null;
+
+        boolean tagsNewOldClashCheck = tagsGetResult.noneMatch(tag ->
+            Arrays.stream(newTagNames).toList().contains(tag.getName())
+        );
+        if(!tagsNewOldClashCheck) return null;
+
+        System.out.println("XXXXXXXXXX");
+
+        if (product == null)
+            product = productService.save(new Product(newProductName));
+
+        System.out.println("XXXXXXXXXX");
+        if (vendor == null)
+            vendor = vendorService.save(new Vendor(newVendorName, newVendorLocation, newVendorPhoneNo));
+        System.out.println("XXXXXXXXXX");
         Review review = reviewService.save(new Review(
                 user,
                 product,
@@ -119,10 +153,16 @@ public class ReviewController {
                 pricePerUnit,
                 comments
         ));
+        System.out.println("XXXXXXXXXX");
 
-        Set<Tag> tags = tagService.updateTagsAndLinkToReview(tagNames, review);
+        tagService.linkExistingTags(existingTagIds, review);
+        System.out.println("XXXXXXXXXX");
+        tagService.makeNewTagsAndLink(newTagNames, review);
+        System.out.println("XXXXXXXXXX");
 
-        //Set<Image> images = imageService.saveImagesAndLinkToReview(imagesData, review.getId());
+        imageService.saveImagesAndLinkToReview(imagesData, review);
+        System.out.println("XXXXXXXXXX");
+
         return review;
     }
 }

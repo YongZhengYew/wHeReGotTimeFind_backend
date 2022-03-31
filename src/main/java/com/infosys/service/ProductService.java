@@ -13,34 +13,38 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductService extends GenericModelService<Product, Integer, ProductRepository>{
-    @Autowired
-    private ObjectMapper objectMapper;
 
     public JSONArray getByNameFuzzy(String productName) {
         JSONArray result = new JSONArray();
-        for (ProductView product : repository.findByNameFuzzy(productName)) {
-            JSONObject fr = null;
-            try {
-                fr = new JSONObject(objectMapper.writeValueAsString(product));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            result.put(fr);
-        }
+        repository.findByNameFuzzy(productName).stream()
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(result::put);
+//        for (ProductView product : repository.findByNameFuzzy(productName)) {
+//            JSONObject fr = null;
+//            try {
+//                fr = new JSONObject(objectMapper.writeValueAsString(product));
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            result.put(fr);
+//        }
         return result;
     }
 
     public JSONArray getByVendorId(Integer vendorId) {
         JSONArray result = new JSONArray();
-        for (ProductView product : repository.findDistinctByReviewsVendorId(vendorId)) {
-            JSONObject fr = null;
-            try {
-                fr = new JSONObject(objectMapper.writeValueAsString(product));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            result.put(fr);
-        }
+        repository.findDistinctByReviewsVendorId(vendorId).stream()
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(result::put);
+//        for (ProductView product : repository.findDistinctByReviewsVendorId(vendorId)) {
+//            JSONObject fr = null;
+//            try {
+//                fr = new JSONObject(objectMapper.writeValueAsString(product));
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            result.put(fr);
+//        }
         return result;
     }
 }

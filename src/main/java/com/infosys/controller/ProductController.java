@@ -15,7 +15,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/name/{productName}")
+    @GetMapping("/productName/{productName}")
     String getProductsByNameFuzzy(@PathVariable String productName) {
         return productService.getByNameFuzzy(productName).toString();
     }
