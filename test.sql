@@ -14,8 +14,8 @@ CREATE TABLE test.users (
 CREATE TABLE test.vendors (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
-    location TEXT,
-    phone_no DECIMAL(20,0)
+    location TEXT NOT NULL,
+    phone_no BIGINT NOT NULL
 );
 
 CREATE TABLE test.products (

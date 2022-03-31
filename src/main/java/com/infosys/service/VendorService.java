@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 public class VendorService extends GenericModelService<Vendor, Integer, VendorRepository> {
     public JSONArray getByNameFuzzy(String vendorName) {
         JSONArray result = new JSONArray();
+        
+
         repository.findVendorViewByNameFuzzy(vendorName).stream()
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);

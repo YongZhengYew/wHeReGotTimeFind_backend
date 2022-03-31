@@ -23,7 +23,7 @@ public class VendorController {
     }
 
     // Read operation
-    @GetMapping("/vendors/{id}")
+    @GetMapping("/{id}")
     public Vendor getVendorbyId(@PathVariable Integer id)
     {
         return vendorService.getById(id);

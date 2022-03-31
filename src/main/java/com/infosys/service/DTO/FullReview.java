@@ -66,12 +66,12 @@ public class FullReview {
             this.unit = unit;
         }
 
-        public BigDecimal getPrice_per_unit() {
-            return price_per_unit;
+        public BigDecimal getPricePerUnit() {
+            return pricePerUnit;
         }
 
-        public void setPrice_per_unit(BigDecimal price_per_unit) {
-            this.price_per_unit = price_per_unit;
+        public void setPricePerUnit(BigDecimal pricePerUnit) {
+            this.pricePerUnit = pricePerUnit;
         }
 
         public List<String> getTags() {
@@ -98,7 +98,7 @@ public class FullReview {
             this.comments = comments;
         }
 
-        private BigDecimal price_per_unit;
+        private BigDecimal pricePerUnit;
         private List<String> tags;
         private List<String> images;
         private String comments;
@@ -119,7 +119,7 @@ public class FullReview {
             this.rating = rating;
             this.unitsPurchased = units_purchased;
             this.unit = unit;
-            this.price_per_unit = price_per_unit;
+            this.pricePerUnit = price_per_unit;
             this.tags = tags;
             this.images = images;
             this.comments = comments;
