@@ -24,9 +24,9 @@ public class VendorController {
 
     // Read operation
     @GetMapping("/{id}")
-    public Vendor getVendorbyId(@PathVariable Integer id)
+    public VendorView getVendorbyId(@PathVariable Integer id)
     {
-        return vendorService.getById(id);
+        return vendorService.getVendorViewById(id);
     }
 
     @GetMapping("/vendorName/{vendorName}")

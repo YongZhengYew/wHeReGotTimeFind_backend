@@ -1,6 +1,7 @@
 package com.infosys.service;
 
 import com.infosys.model.Vendor;
+import com.infosys.model.projection.ReviewView;
 import com.infosys.model.projection.VendorView;
 import com.infosys.repository.VendorRepository;
 import org.json.JSONArray;
@@ -17,5 +18,9 @@ public class VendorService extends GenericModelService<Vendor, Integer, VendorRe
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);
         return result;
+    }
+
+    public VendorView getVendorViewById(Integer id) {
+        return repository.findVendorViewById(id);
     }
 }
