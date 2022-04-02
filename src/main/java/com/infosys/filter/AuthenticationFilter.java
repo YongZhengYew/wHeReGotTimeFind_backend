@@ -27,6 +27,8 @@ public class AuthenticationFilter implements Filter {
                 &&
                 req.getMethod().equals("POST")
         );
+        System.out.println("AUTHTOKEN: " + authToken);
+        System.out.println(isTryingToLoginOrSignUp);
         System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
         if (authToken == null && !isTryingToLoginOrSignUp) {
             HttpServletResponse resp = (HttpServletResponse) response;

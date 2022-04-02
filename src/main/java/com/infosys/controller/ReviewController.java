@@ -69,24 +69,24 @@ public class ReviewController {
     Review postReview(
             @RequestParam Integer existingUserId,
 
-            @RequestParam Integer existingProductId,
-            @RequestParam String newProductName,
+            @RequestParam(required = false) Integer existingProductId,
+            @RequestParam(required = false) String newProductName,
 
-            @RequestParam Integer existingVendorId,
-            @RequestParam String newVendorName,
-            @RequestParam String newVendorLocation,
-            @RequestParam Long newVendorPhoneNo,
+            @RequestParam(required = false) Integer existingVendorId,
+            @RequestParam(required = false) String newVendorName,
+            @RequestParam(required = false) String newVendorLocation,
+            @RequestParam(required = false) Long newVendorPhoneNo,
 
-            @RequestParam String[] imagesData,
+            @RequestParam(required = false) String[] imagesData,
 
-            @RequestParam Integer[] existingTagIds,
-            @RequestParam String[] newTagNames,
+            @RequestParam(required = false) Integer[] existingTagIds,
+            @RequestParam(required = false) String[] newTagNames,
 
             @RequestParam Integer rating,
             @RequestParam Integer unitsPurchased,
             @RequestParam String unit,
             @RequestParam BigDecimal pricePerUnit,
-            @RequestParam String comments
+            @RequestParam(required = false) String comments
     ) {
         if (existingUserId == null) return null;
         if (existingProductId == null && newProductName.isEmpty())
@@ -123,16 +123,18 @@ public class ReviewController {
 
         System.out.println("XXXXXXXXXX");
 
-        Stream<Tag> tagsGetResult = Arrays.stream(existingTagIds)
-                .map(tagService::getById);
+        if (existingTagIds != null && newTagNames != null) {
+            Stream<Tag> tagsGetResult = Arrays.stream(existingTagIds)
+                    .map(tagService::getById);
 
-        boolean tagIdsValid = tagsGetResult.noneMatch(Objects::isNull);
-        if (!tagIdsValid) return null;
+            boolean tagIdsValid = tagsGetResult.noneMatch(Objects::isNull);
+            if (!tagIdsValid) return null;
 
-        boolean tagsNewOldClashCheck = tagsGetResult.noneMatch(tag ->
-            Arrays.stream(newTagNames).toList().contains(tag.getName())
-        );
-        if(!tagsNewOldClashCheck) return null;
+            boolean tagsNewOldClashCheck = tagsGetResult.noneMatch(tag ->
+                    Arrays.stream(newTagNames).toList().contains(tag.getName())
+            );
+            if (!tagsNewOldClashCheck) return null;
+        }
 
         System.out.println("XXXXXXXXXX");
 
@@ -155,12 +157,15 @@ public class ReviewController {
         ));
         System.out.println("XXXXXXXXXX");
 
-        tagService.linkExistingTags(existingTagIds, review);
+        if (existingTagIds != null)
+            tagService.linkExistingTags(existingTagIds, review);
         System.out.println("XXXXXXXXXX");
-        tagService.makeNewTagsAndLink(newTagNames, review);
+        if (newTagNames != null)
+            tagService.makeNewTagsAndLink(newTagNames, review);
         System.out.println("XXXXXXXXXX");
 
-        imageService.saveImagesAndLinkToReview(imagesData, review);
+        if (imagesData != null)
+            imageService.saveImagesAndLinkToReview(imagesData, review);
         System.out.println("XXXXXXXXXX");
 
         return review;
