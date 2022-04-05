@@ -4,14 +4,19 @@ import com.infosys.model.Image;
 import com.infosys.model.Review;
 import com.infosys.model.projection.ImageView;
 import com.infosys.repository.ImageRepository;
+import com.infosys.repository.ReviewRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
 @Service
 public class ImageService extends GenericModelService<Image, Integer, ImageRepository> {
+    @Autowired
+    private ReviewRepository reviewRepository;
+
     public JSONArray saveImagesAndLinkToReview(String[] imagesData, Review review) {
         JSONArray result = new JSONArray();
         Arrays.stream(imagesData)
