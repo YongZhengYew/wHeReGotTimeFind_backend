@@ -53,12 +53,13 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    String deleteReview(@RequestParam String username, @PathVariable Integer id, @RequestParam(required = false) boolean debug) {
+    String deleteReview(@RequestParam(required = false) String username, @PathVariable Integer id, @RequestParam(required = false) boolean debug) {
         Review review = reviewService.getById(id);
 
         if (review == null) return null;
 
         if (!debug) {
+            if (username == null) return null;
             if (!review.getUser().getName().equals(username)) return "you aren't the owner";
         }
 
