@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -33,16 +34,23 @@ public class FullReviewService {
 
     public JSONArray getFullReviewsByUsernames(String[] usernames) {
         JSONArray result = new JSONArray();
-        Arrays.stream(usernames).map(username -> {
-            JSONArray perUser = new JSONArray();
-            reviewRepository.findReviewViewByUserName(username).stream()
-                    .map(FullReview::new)
-                    .map(objectMapperUtil::getJSONObject)
-                    .forEach(perUser::put);
-            JSONObject fullReviews = new JSONObject();
-            fullReviews.put("full_reviews", perUser);
-            return fullReviews;
-        }).forEach(result::put);
+        Arrays.stream(usernames).map(reviewRepository::findReviewViewByUserName)
+                .flatMap(Collection::stream)
+                .map(FullReview::new)
+                .map(objectMapperUtil::getJSONObject)
+                .forEach(result::put);
+        return result;
+//        JSONArray result = new JSONArray();
+//        Arrays.stream(usernames).map(username -> {
+//            JSONArray perUser = new JSONArray();
+//            reviewRepository.findReviewViewByUserName(username).stream()
+//                    .map(FullReview::new)
+//                    .map(objectMapperUtil::getJSONObject)
+//                    .forEach(perUser::put);
+//            JSONObject fullReviews = new JSONObject();
+//            fullReviews.put("full_reviews", perUser);
+//            return fullReviews;
+//        }).forEach(result::put);
 //        for (String username : usernames) {
 //            JSONObject fullReviewsPerUser = new JSONObject();
 //            JSONArray userReviewArray = new JSONArray();
@@ -59,7 +67,6 @@ public class FullReviewService {
 //            fullReviewsPerUser.put("full_review", userReviewArray);
 //            result.put(fullReviewsPerUser);
 //        }
-        return result;
     }
 
     public JSONArray getFullReviewsByTagIds(Integer[] tagIds) {
