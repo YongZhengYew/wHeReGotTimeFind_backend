@@ -20,12 +20,21 @@ public class FullReview {
 
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     static class ReviewStub {
+        private Integer reviewid;
         private Integer userid;
         private String username;
         private String productName;
         private Integer rating;
         private Integer unitsPurchased;
         private String unit;
+
+        public Integer getReviewid() {
+            return reviewid;
+        }
+
+        public void setReviewid(Integer reviewid) {
+            this.reviewid = reviewid;
+        }
 
         public Integer getUserid() {
             return userid;
@@ -113,6 +122,7 @@ public class FullReview {
         private String comments;
 
         public ReviewStub(
+                Integer reviewid,
                 Integer userid,
                 String username,
                 String product_name,
@@ -124,6 +134,7 @@ public class FullReview {
                 List<String> images,
                 String comments
         ) {
+            this.reviewid = reviewid;
             this.userid = userid;
             this.username = username;
             this.productName = product_name;
@@ -140,6 +151,7 @@ public class FullReview {
     public FullReview(ReviewView reviewView) {
         this.vendor = reviewView.getVendor();
         this.review = new ReviewStub(
+                reviewView.getId(),
                 reviewView.getUser().getId(),
                 reviewView.getUser().getName(),
                 reviewView.getProduct().getName(),
