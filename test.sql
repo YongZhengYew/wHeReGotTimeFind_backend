@@ -56,7 +56,7 @@ CREATE TABLE test.tags_to_reviews (
 
 INSERT INTO test.users(name, password_hash) VALUES('mike', 'pass1');
 INSERT INTO test.users(name, password_hash) VALUES('shaun', 'pass2');
-INSERT INTO test.users(name, password_hash) VALUES('pedro', 'pass3');
+INSERT INTO test.users(name, password_hash, temp_auth_token) VALUES('pedro', 'pass3', 'tat');
 
 INSERT INTO test.products(name) VALUES('grass');
 INSERT INTO test.products(name) VALUES('cup');

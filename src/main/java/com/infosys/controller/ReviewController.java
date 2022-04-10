@@ -128,7 +128,7 @@ public class ReviewController {
             @RequestParam(required = false) String newVendorLocation,
             @RequestParam(required = false) Long newVendorPhoneNo,
 
-            @RequestParam(required = false) MultipartFile[] imagesData,
+            @RequestParam(required = false) String[] imagesData,
 
             @RequestParam(required = false) Integer[] existingTagIds,
             @RequestParam(required = false) String[] newTagNames,
@@ -216,23 +216,7 @@ public class ReviewController {
         System.out.println("XXXXXXXXXX");
 
         if (imagesData != null) {
-            System.out.println("YYY");
-            List<String> images = new ArrayList<>();
-            System.out.println("YYY");
-            for (MultipartFile image : imagesData) {
-                System.out.println("ZZZ");
-                try {
-                    images.add(new String(image.getBytes(), StandardCharsets.UTF_8));
-                } catch (Exception e) {
-                    System.out.println("huh?");
-                }
-            }
-            System.out.println("YYY");
-            String[] arr = images.toArray(String[]::new);
-            System.out.println("YYY");
-            System.out.println("HEYO: " + arr[0]);
-            imageService.saveImagesAndLinkToReview(arr, review);
-            System.out.println("YYY");
+            imageService.saveImagesAndLinkToReview(imagesData, review);
         }
 
         System.out.println("XXXXXXXXXX");
