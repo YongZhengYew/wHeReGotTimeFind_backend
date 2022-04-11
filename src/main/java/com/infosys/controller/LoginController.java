@@ -1,7 +1,6 @@
 package com.infosys.controller;
 
 import com.infosys.service.UserService;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

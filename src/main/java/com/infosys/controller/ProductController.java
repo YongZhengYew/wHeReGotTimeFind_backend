@@ -1,8 +1,6 @@
 package com.infosys.controller;
 
 import com.infosys.service.ProductService;
-import com.infosys.service.VendorService;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
