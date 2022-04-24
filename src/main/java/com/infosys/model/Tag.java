@@ -22,7 +22,7 @@ public class Tag {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property="id")
     @ManyToMany
     @JoinTable(
-            name = "tags_to_reviews", schema = "test",
+            name = "tags_to_reviews", schema = "deployed",
             joinColumns = @JoinColumn(name = "tag_ref"),
             inverseJoinColumns = @JoinColumn(name = "review_ref"))
     private Set<Review> taggedReviews;
