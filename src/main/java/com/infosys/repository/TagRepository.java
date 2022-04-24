@@ -13,6 +13,6 @@ import java.util.Set;
 public interface TagRepository extends JpaRepository<Tag, Integer> {
     Optional<Tag> findByName(String tagName);
 
-    @Query(value = "SELECT * FROM test.tags t WHERE SIMILARITY(name, ?1) > 0.1;", nativeQuery = true)
+    @Query(value = "SELECT * FROM deployed.tags t WHERE SIMILARITY(name, ?1) > 0.1;", nativeQuery = true)
     Set<TagView> findTagViewsByNameFuzzy(String tagName);
 }

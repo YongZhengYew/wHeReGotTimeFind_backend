@@ -164,20 +164,4 @@ public class FullReview {
                 reviewView.getComments()
         );
     }
-
-//    public ReviewStub getReviewStub() {
-//        return review;
-//    }
-//
-//    public void setReviewStub(ReviewStub reviewStub) {
-//        this.review = reviewStub;
-//    }
-//
-//    public VendorView getVendorView() {
-//        return vendor;
-//    }
-//
-//    public void setVendorView(VendorView vendorView) {
-//        this.vendor = vendorView;
-//    }
 }

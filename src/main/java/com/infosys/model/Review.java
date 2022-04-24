@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Entity
-@Table(name = "reviews", schema = "test")
+@Table(name = "reviews", schema = "deployed")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Review {
     @Id

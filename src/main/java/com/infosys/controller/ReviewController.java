@@ -3,15 +3,14 @@ package com.infosys.controller;
 import com.infosys.model.*;
 import com.infosys.model.projection.ReviewView;
 import com.infosys.service.*;
-import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -46,14 +45,15 @@ public class ReviewController {
 
     @GetMapping("/username")
     String getFullReviewsByUsernames(@RequestParam String[] usernames) {
-        for (String str : usernames) {
-            System.out.println(str);
-        }
         return fullReviewService.getFullReviewsByUsernames(usernames).toString();
     }
 
     @DeleteMapping("/{id}")
-    String deleteReview(@RequestParam(required = false) String username, @PathVariable Integer id, @RequestParam(required = false) boolean debug) {
+    String deleteReview(
+            @RequestParam(required = false) String username,
+            @PathVariable Integer id,
+            @RequestParam(required = false) boolean debug
+    ) {
         Review review = reviewService.getById(id);
 
         if (review == null) return null;
@@ -99,63 +99,65 @@ public class ReviewController {
         }
     }
 
-    @PostMapping("test")
-    String test(
-            @RequestParam String text,
-            @RequestParam Integer number,
-            @RequestParam MultipartFile file
-    ) {
-        try {
-            return "RECEIVED: \n" +
-                    text + "\n" +
-                    number + "\n" +
-                    new String(file.getBytes(), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return "huh?";
-        }
-    }
-
-
     @PostMapping
     Review postReview(
+            // User
             @RequestParam Integer existingUserId,
 
+            // Product
             @RequestParam(required = false) Integer existingProductId,
             @RequestParam(required = false) String newProductName,
 
+            // Vendor
             @RequestParam(required = false) Integer existingVendorId,
             @RequestParam(required = false) String newVendorName,
             @RequestParam(required = false) String newVendorLocation,
             @RequestParam(required = false) Long newVendorPhoneNo,
 
+            // Images
             @RequestParam(required = false) String[] imagesData,
 
+            // Tags
             @RequestParam(required = false) Integer[] existingTagIds,
             @RequestParam(required = false) String[] newTagNames,
 
+            // Misc
             @RequestParam Integer rating,
             @RequestParam Integer unitsPurchased,
             @RequestParam String unit,
             @RequestParam BigDecimal pricePerUnit,
             @RequestParam(required = false) String comments
     ) {
+        /*
+        Validation of endpoint parameters. All possible combinations of parameters
+        (optional and compulsory) must be validated before any modification of the
+        database can begin, which makes the code a bit long-winded.
+        */
+
+        // Must have user id. No anonymous reviews in our implementation
         if (existingUserId == null) return null;
+
+        // Every review must be linked to a product. Either an existing product
+        // must be indicated with an id, or a new product name must be provided
         if (existingProductId == null && newProductName.isEmpty())
             return null;
-        if (existingVendorId == null && (
-                newVendorName.isEmpty() ||
-                newVendorLocation.isEmpty() ||
-                newVendorPhoneNo == null
-        ))
+
+        // Similarly, either an existing vendor must be indicated with an id,
+        // or new vendor details must be provided
+        if (
+                existingVendorId == null && (
+                    newVendorName.isEmpty() ||
+                    newVendorLocation.isEmpty() ||
+                    newVendorPhoneNo == null
+                )
+        )
             return null;
 
-        System.out.println("XXXXXXXXXX");
-
+        // Check if provided user id is valid
         User user = userService.getById(existingUserId);
         if (user == null) return null;
 
-        System.out.println("XXXXXXXXXX");
-
+        // If provided with existing product id, then check validity
         Product product = null;
         if (existingProductId != null) {
             Product getResult = productService.getById(existingProductId);
@@ -163,8 +165,7 @@ public class ReviewController {
             else product = getResult;
         }
 
-        System.out.println("XXXXXXXXXX");
-
+        // If provided with existing vendor id, then check validity
         Vendor vendor = null;
         if (existingVendorId != null) {
             Vendor getResult = vendorService.getById(existingVendorId);
@@ -172,8 +173,8 @@ public class ReviewController {
             else vendor = getResult;
         }
 
-        System.out.println("XXXXXXXXXX");
-
+        // Tags are not yet implemented on the app (always null received), but we have a handler for future
+        // If provided with existing tag ids, then check validity
         if (existingTagIds != null && newTagNames != null) {
             Supplier<Stream<Tag>> tagsGetResult = () -> Arrays.stream(existingTagIds)
                     .map(tagService::getById);
@@ -181,21 +182,23 @@ public class ReviewController {
             boolean tagIdsValid = tagsGetResult.get().noneMatch(Objects::isNull);
             if (!tagIdsValid) return null;
 
+            // Unlike for products and vendors, we can have both new tags and old tags in one request
+            // (since more than one tag can be added to a review). Thus, we must check that new tag
+            // names do not clash with existing tag names
             boolean tagsNewOldClashCheck = tagsGetResult.get().noneMatch(tag ->
                     Arrays.stream(newTagNames).toList().contains(tag.getName())
             );
             if (!tagsNewOldClashCheck) return null;
         }
 
-        System.out.println("XXXXXXXXXX");
+        /* All parameters validated, start calling service operations to modify databases */
 
         if (product == null)
             product = productService.save(new Product(newProductName));
 
-        System.out.println("XXXXXXXXXX");
         if (vendor == null)
             vendor = vendorService.save(new Vendor(newVendorName, newVendorLocation, newVendorPhoneNo));
-        System.out.println("XXXXXXXXXX");
+
         Review review = reviewService.save(new Review(
                 user,
                 product,
@@ -206,20 +209,15 @@ public class ReviewController {
                 pricePerUnit,
                 comments
         ));
-        System.out.println("XXXXXXXXXX");
 
         if (existingTagIds != null)
             tagService.linkExistingTags(existingTagIds, review);
-        System.out.println("XXXXXXXXXX");
+
         if (newTagNames != null)
             tagService.makeNewTagsAndLink(newTagNames, review);
-        System.out.println("XXXXXXXXXX");
 
-        if (imagesData != null) {
+        if (imagesData != null)
             imageService.saveImagesAndLinkToReview(imagesData, review);
-        }
-
-        System.out.println("XXXXXXXXXX");
 
         return review;
     }

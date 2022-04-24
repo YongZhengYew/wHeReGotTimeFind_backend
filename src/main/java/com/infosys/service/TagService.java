@@ -44,32 +44,11 @@ public class TagService extends GenericModelService<Tag, Integer, TagRepository>
         return result;
     }
 
-//    public Set<Tag> updateTagsAndLinkToReview(String[] tagNames, Review review) {
-//        Set<Tag> result = new HashSet<>();
-//        for (String tagName : tagNames) {
-//            Optional<Tag> optTag = repository.findByName(tagName);
-//            if (optTag.isPresent()) {
-//                Tag tag = optTag.get();
-//                tag.updateTaggedReviews(review);
-//                result.add(repository.save(tag));
-//            } else {
-//                Tag newTag = new Tag(tagName);
-//                newTag.updateTaggedReviews(review);
-//                result.add(repository.save(newTag));
-//            }
-//        }
-//        return result;
-//    }
-
     public JSONArray getByNameList(String tagNames) {
         JSONArray result = new JSONArray();
         repository.findTagViewsByNameFuzzy(tagNames).stream()
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);
-//        Set<TagView> tags = repository.findTagViewsByNameFuzzy(tagNames);
-//        for (TagView tag : tags) {
-//            result.put(objectMapperUtil.getJSONObject(tag));
-//        }
         return result;
     }
 }

@@ -19,42 +19,36 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
 
         String authToken = req.getParameter("authToken");
+
         boolean isTryingToLoginOrSignUp = (
                 (req.getRequestURI().equals("/login") || req.getRequestURI().equals("/signup"))
                 &&
                 req.getMethod().equals("POST")
         );
-        System.out.println("AUTHTOKEN: " + authToken);
-        System.out.println(isTryingToLoginOrSignUp);
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-        if (authToken == null && !isTryingToLoginOrSignUp) {
-            HttpServletResponse resp = (HttpServletResponse) response;
-            resp.reset();
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
+
+        // If trying to log in or signup, let the request through regardless of authorization
         if (isTryingToLoginOrSignUp) {
             chain.doFilter(request, response);
-            return;
-        }
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-        String username = req.getParameter("username");
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-        String storedAuthToken = userService.getTempAuthTokenByName(username);
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-        System.out.println(storedAuthToken);
-        if (storedAuthToken == null || !storedAuthToken.equals(authToken)) {
+        } else if (authToken == null) { // else, block if no authToken present
             HttpServletResponse resp = (HttpServletResponse) response;
             resp.reset();
             resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
+        } else { // if authToken is present, then validate authorization
+            String username = req.getParameter("username");
+            String storedAuthToken = userService.getTempAuthTokenByName(username);
+
+            // block if authToken is invalid
+            if (storedAuthToken == null || !storedAuthToken.equals(authToken)) {
+                HttpServletResponse resp = (HttpServletResponse) response;
+                resp.reset();
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
+            // else let request through
+            chain.doFilter(request, response);
         }
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
-        chain.doFilter(request, response);
-        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXX");
     }
 }

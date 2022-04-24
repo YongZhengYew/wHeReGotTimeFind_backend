@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tags", schema = "test")
+@Table(name = "tags", schema = "deployed")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Tag {
     @Id

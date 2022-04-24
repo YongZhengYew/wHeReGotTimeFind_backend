@@ -2,12 +2,10 @@ package com.infosys.service;
 
 import com.infosys.model.User;
 import com.infosys.model.projection.LoginView;
-import com.infosys.model.projection.UserView;
 import com.infosys.repository.UserRepository;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Random;
 
 @Service

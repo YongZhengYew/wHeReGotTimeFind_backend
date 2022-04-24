@@ -6,7 +6,6 @@ import com.infosys.model.projection.ImageView;
 import com.infosys.repository.ImageRepository;
 import com.infosys.repository.ReviewRepository;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +23,6 @@ public class ImageService extends GenericModelService<Image, Integer, ImageRepos
                 .map(repository::save)
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);
-//        for (String imageData : imagesData) {
-//            Image image = repository.save(new Image(imageData, review));
-//            result.put(objectMapperUtil.getJSONObject(image));
-//        }
         return result;
     }
 

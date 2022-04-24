@@ -24,7 +24,7 @@ public class VendorController {
 
     // Read operation
     @GetMapping("/{id}")
-    public VendorView getVendorbyId(@PathVariable Integer id)
+    public VendorView getVendorById(@PathVariable Integer id)
     {
         return vendorService.getVendorViewById(id);
     }
@@ -36,7 +36,7 @@ public class VendorController {
 
     // Delete operation
     @DeleteMapping("/{id}")
-    public String deleteDepartmentById(@PathVariable("id") Integer id) {
+    public String deleteVendorById(@PathVariable("id") Integer id) {
         vendorService.deleteById(id);
         return "Deleted Successfully";
     }

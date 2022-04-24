@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.example</groupId>
-  <artifactId>testProject</artifactId>
+  <artifactId>wHeReGotTimeFind_backend</artifactId>
   <version>1.0</version>
 
   <parent>
@@ -13,7 +13,7 @@
     <version>2.6.5</version>
     <relativePath/>
   </parent>
-  <name>testProject</name>
+  <name>wHeReGotTimeFind_backend</name>
 
   <properties>
     <java.version>17</java.version>

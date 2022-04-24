@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "images", schema = "test")
+@Table(name = "images", schema = "deployed")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Image {
     @Id

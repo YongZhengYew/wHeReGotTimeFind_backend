@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name="vendors", schema="test")
+@Table(name="vendors", schema="deployed")
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Vendor {
     @Id
