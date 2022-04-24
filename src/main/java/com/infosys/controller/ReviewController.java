@@ -64,7 +64,7 @@ public class ReviewController {
         }
 
         reviewService.deleteById(id);
-        return "delete successful";
+        return "{status: delete successful}";
     }
 
     @GetMapping("/tags")

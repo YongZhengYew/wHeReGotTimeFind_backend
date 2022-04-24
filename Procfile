@@ -1,1 +1,1 @@
-web: java -jar target/testProject-1.0.jar
+web: java -jar target/wHeReGotTimeFind_backend-1.0.jar
