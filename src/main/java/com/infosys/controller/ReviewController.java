@@ -176,19 +176,27 @@ public class ReviewController {
         // Tags are not yet implemented on the app (always null received), but we have a handler for future
         // If provided with existing tag ids, then check validity
         if (existingTagIds != null && newTagNames != null) {
-            Supplier<Stream<Tag>> tagsGetResult = () -> Arrays.stream(existingTagIds)
-                    .map(tagService::getById);
-
-            boolean tagIdsValid = tagsGetResult.get().noneMatch(Objects::isNull);
+            boolean tagIdsValid = Arrays.stream(existingTagIds)
+                    .map(tagService::getById)
+                    .noneMatch(Objects::isNull);
             if (!tagIdsValid) return null;
 
             // Unlike for products and vendors, we can have both new tags and old tags in one request
             // (since more than one tag can be added to a review). Thus, we must check that new tag
             // names do not clash with existing tag names
-            boolean tagsNewOldClashCheck = tagsGetResult.get().noneMatch(tag ->
-                    Arrays.stream(newTagNames).toList().contains(tag.getName())
-            );
-            if (!tagsNewOldClashCheck) return null;
+            if (tagService.checkIfExists(newTagNames)) return null;
+        }
+
+        // If product == null, it means that newProductName is in use. If so, then check
+        // that it does not clash with any existing product names.
+        if (product == null) {
+            if (productService.checkIfExists(newProductName)) return null;
+        }
+
+        // If vendor == null, it means that newVendorName is in use. If so, then check
+        // that it does not clash with any existing vendor names.
+        if (vendor == null) {
+            if (vendorService.checkIfExists(newVendorName)) return null;
         }
 
         /* All parameters validated, start calling service operations to modify databases */

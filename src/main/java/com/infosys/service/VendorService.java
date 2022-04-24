@@ -19,4 +19,8 @@ public class VendorService extends GenericModelService<Vendor, Integer, VendorRe
     public VendorView getVendorViewById(Integer id) {
         return repository.findVendorViewById(id);
     }
+
+    public boolean checkIfExists(String vendorName) {
+        return repository.existsByName(vendorName);
+    }
 }

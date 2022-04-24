@@ -1,9 +1,6 @@
 package com.infosys.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infosys.model.Product;
-import com.infosys.model.projection.ProductView;
 import com.infosys.repository.ProductRepository;
 import org.json.JSONArray;
 import org.springframework.stereotype.Service;
@@ -25,5 +22,9 @@ public class ProductService extends GenericModelService<Product, Integer, Produc
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);
         return result;
+    }
+
+    public boolean checkIfExists(String productName) {
+        return repository.existsByName(productName);
     }
 }

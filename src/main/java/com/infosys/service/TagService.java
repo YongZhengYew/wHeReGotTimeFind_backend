@@ -1,21 +1,12 @@
 package com.infosys.service;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infosys.model.Review;
 import com.infosys.model.Tag;
-import com.infosys.model.projection.TagView;
 import com.infosys.repository.TagRepository;
-import io.micrometer.core.instrument.Tags;
 import org.json.JSONArray;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class TagService extends GenericModelService<Tag, Integer, TagRepository> {
@@ -50,5 +41,11 @@ public class TagService extends GenericModelService<Tag, Integer, TagRepository>
                 .map(objectMapperUtil::getJSONObject)
                 .forEach(result::put);
         return result;
+    }
+
+    public boolean checkIfExists(String[] tagNames) {
+        return Arrays.stream(tagNames)
+                .map(repository::existsByName)
+                .anyMatch(val -> val == true);
     }
 }

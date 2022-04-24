@@ -11,6 +11,6 @@ import java.util.Set;
 public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query(value = "SELECT * FROM deployed.products p WHERE SIMILARITY(name, ?1) > 0.1;", nativeQuery = true)
     List<ProductView> findByNameFuzzy(String productNameFuzzy);
-
+    boolean existsByName(String productName);
     Set<ProductView> findDistinctByReviewsVendorId(Integer vendorId);
 }
