@@ -6,6 +6,15 @@ Code for the backend server of our application, *wHeReGotTimeFind*.
 - Database in PostgreSQL
 - Deployed on Heroku at https://safe-coast-45446.herokuapp.com
 
+## Team 3D Members
+ - [1005118 Ian Goh](https://github.com/iangohy)
+ - [1005036 Tham Jit](https://github.com/asdfash)
+ - [1005175 Jonah Yeo](https://github.com/J-onah)
+ - [1005310 Tan Li Hui](https://github.com/t-lihui)
+ - [1005155 Yong Zheng Yew](https://github.com/YongZhengYew)
+ - [1005262 Kevin Teng](https://github.com/lemons4lyf)
+ - [1004883 Yang Haocheng](https://github.com/yhc-666)
+
 ## Endpoints Used in the App
 
 ### Login​
